@@ -101,7 +101,7 @@ pub fn restart_input_system(
     mut next_state: ResMut<NextState<crate::GameState>>,
 ) {
     if keyboard.just_pressed(KeyCode::KeyR) {
-        next_state.set(crate::GameState::Playing);
+        next_state.set(crate::GameState::Restarting);
     }
 }
 
