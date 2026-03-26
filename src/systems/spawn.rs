@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 use crate::board::*;
 use crate::components::*;
+use crate::constants::{BLOCK_SIZE, SIDEBAR_X};
 use crate::resources::*;
 use crate::tetromino::TetrominoType;
 
@@ -110,9 +111,10 @@ pub fn spawn_initial_piece(
     mut commands: Commands,
     current_piece: Res<CurrentPiece>,
     next_piece: Res<NextPiece>,
+    board: Res<Board>,
 ) {
     spawn_piece(&mut commands, &current_piece);
-    spawn_ghost_piece(&mut commands, &current_piece, &Board::default());
+    spawn_ghost_piece(&mut commands, &current_piece, &board);
     spawn_next_piece_preview(&mut commands, &next_piece);
 }
 
@@ -158,5 +160,3 @@ pub fn lock_and_spawn(
 
     true
 }
-
-use crate::constants::{BLOCK_SIZE, SIDEBAR_X};

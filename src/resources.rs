@@ -62,10 +62,14 @@ impl Board {
         let full_rows = self.find_full_rows();
         let count = full_rows.len() as u32;
 
-        // Process from bottom to top
-        for &row in &full_rows {
+        // Process from bottom to top, adjusting indices as rows are removed.
+        // After removing a row at index `row`, all rows above shift down by 1,
+        // so subsequent full row indices need to be decremented by the number
+        // of rows already removed.
+        for (i, &row) in full_rows.iter().enumerate() {
+            let adjusted_row = row - i;
             // Shift all rows above this one down
-            for y in row..GRID_HEIGHT - 1 {
+            for y in adjusted_row..GRID_HEIGHT - 1 {
                 self.cells[y] = self.cells[y + 1];
             }
             // Clear the top row
