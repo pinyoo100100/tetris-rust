@@ -1,0 +1,15 @@
+[package]
+name = "tetris-rust"
+version = "0.1.0"
+edition = "2021"
+description = "A Tetris game built with Rust and Bevy"
+
+[dependencies]
+bevy = { version = "0.15", features = ["default"] }
+rand = "0.8"
+
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3
