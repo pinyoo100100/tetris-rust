@@ -58,24 +58,33 @@ pub fn input_system(
         current_piece.y = target_y;
         score.add_hard_drop(drop_distance);
 
-        // Lock immediately
-        let can_continue = spawn::lock_and_spawn(
+        // Phase 1: Lock the piece onto the board
+        spawn::lock_piece(
             &mut commands,
             &mut board,
-            &mut current_piece,
-            &mut next_piece,
+            &current_piece,
             &falling_query,
             &ghost_query,
             &next_preview_query,
         );
 
-        // Clear lines
+        // Phase 2: Clear lines (before spawning next piece to avoid false game over)
         let lines = board.clear_full_rows();
         if lines > 0 {
             score.add_lines(lines);
             drop_timer.update_speed(score.level);
-            rebuild_locked_blocks(&mut commands, &board, &locked_query);
         }
+
+        // Always rebuild locked block visuals after locking a piece
+        rebuild_locked_blocks(&mut commands, &board, &locked_query);
+
+        // Phase 3: Spawn next piece (game over check runs against cleared board)
+        let can_continue = spawn::spawn_next_piece(
+            &mut commands,
+            &board,
+            &mut current_piece,
+            &mut next_piece,
+        );
 
         if !can_continue {
             next_state.set(crate::GameState::GameOver);

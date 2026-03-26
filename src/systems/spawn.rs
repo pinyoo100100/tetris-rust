@@ -118,17 +118,17 @@ pub fn spawn_initial_piece(
     spawn_next_piece_preview(&mut commands, &next_piece);
 }
 
-/// Lock the current piece onto the board and spawn a new one.
-/// Returns true if the game should continue, false if game over.
-pub fn lock_and_spawn(
+/// Lock the current piece onto the board and despawn its entities.
+/// This is the first phase of the lock cycle — call this, then clear lines,
+/// then call `spawn_next_piece` to check game over and spawn the next piece.
+pub fn lock_piece(
     commands: &mut Commands,
     board: &mut Board,
-    current_piece: &mut CurrentPiece,
-    next_piece: &mut NextPiece,
+    current_piece: &CurrentPiece,
     falling_query: &Query<Entity, With<FallingBlock>>,
     ghost_query: &Query<Entity, With<GhostBlock>>,
     next_preview_query: &Query<Entity, With<NextPieceBlock>>,
-) -> bool {
+) {
     let color = current_piece.piece_type.color();
     let positions = current_piece.block_positions();
 
@@ -141,7 +141,16 @@ pub fn lock_and_spawn(
     despawn_falling_blocks(commands, falling_query);
     despawn_ghost_blocks(commands, ghost_query);
     despawn_next_piece_preview(commands, next_preview_query);
+}
 
+/// Prepare and spawn the next piece after lines have been cleared.
+/// Returns true if the game should continue, false if game over.
+pub fn spawn_next_piece(
+    commands: &mut Commands,
+    board: &Board,
+    current_piece: &mut CurrentPiece,
+    next_piece: &mut NextPiece,
+) -> bool {
     // Set up next piece
     let new_type = next_piece.piece_type;
     next_piece.piece_type = TetrominoType::random();
@@ -149,6 +158,7 @@ pub fn lock_and_spawn(
     *current_piece = CurrentPiece::new(new_type);
 
     // Check if the new piece can be placed (game over check)
+    // This runs AFTER line clearing, so cleared rows won't cause false game over
     if !current_piece.can_place(board, current_piece.x, current_piece.y, current_piece.rotation) {
         return false;
     }
