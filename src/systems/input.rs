@@ -73,6 +73,8 @@ pub fn input_system(
         if lines > 0 {
             score.add_lines(lines);
             drop_timer.update_speed(score.level);
+        } else {
+            score.break_combo();
         }
 
         // Always rebuild locked block visuals after locking a piece

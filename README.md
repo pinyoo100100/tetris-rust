@@ -90,6 +90,7 @@ The game follows Bevy's ECS architecture:
 | 4 (Tetris) | 800 |
 
 Points are multiplied by `(level + 1)`. Soft drops earn 1 point per row, hard drops earn 2 points per row.
+Consecutive line clears award combo bonus points: `50 × combo × (level + 1)`, where combo starts at 0 and increases for each back-to-back clear (bonus starts from the second clear).
 
 ## License
 

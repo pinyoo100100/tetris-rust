@@ -38,6 +38,7 @@ pub const SCORE_SINGLE: u32 = 100;
 pub const SCORE_DOUBLE: u32 = 300;
 pub const SCORE_TRIPLE: u32 = 500;
 pub const SCORE_TETRIS: u32 = 800;
+pub const SCORE_COMBO: u32 = 50;
 pub const SCORE_SOFT_DROP: u32 = 1;
 pub const SCORE_HARD_DROP: u32 = 2;
 

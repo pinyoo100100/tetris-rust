@@ -210,19 +210,33 @@ pub struct Score {
     pub value: u32,
     pub lines_cleared: u32,
     pub level: u32,
+    pub combo: u32,
 }
 
 impl Score {
     pub fn add_lines(&mut self, lines: u32) {
         self.lines_cleared += lines;
-        self.value += match lines {
+        let line_score = match lines {
             1 => SCORE_SINGLE * (self.level + 1),
             2 => SCORE_DOUBLE * (self.level + 1),
             3 => SCORE_TRIPLE * (self.level + 1),
             4 => SCORE_TETRIS * (self.level + 1),
             _ => 0,
         };
+        let combo_score = if lines > 0 && self.combo > 0 {
+            SCORE_COMBO * self.combo * (self.level + 1)
+        } else {
+            0
+        };
+        self.value += line_score + combo_score;
+        if lines > 0 {
+            self.combo += 1;
+        }
         self.level = self.lines_cleared / LINES_PER_LEVEL;
+    }
+
+    pub fn break_combo(&mut self) {
+        self.combo = 0;
     }
 
     pub fn add_soft_drop(&mut self) {
@@ -237,6 +251,7 @@ impl Score {
         self.value = 0;
         self.lines_cleared = 0;
         self.level = 0;
+        self.combo = 0;
     }
 }
 
@@ -358,6 +373,7 @@ mod tests {
         score.add_lines(1);
         assert_eq!(score.value, SCORE_SINGLE);
         assert_eq!(score.lines_cleared, 1);
+        assert_eq!(score.combo, 1);
     }
 
     #[test]
@@ -366,6 +382,7 @@ mod tests {
         score.add_lines(4);
         assert_eq!(score.value, SCORE_TETRIS);
         assert_eq!(score.lines_cleared, 4);
+        assert_eq!(score.combo, 1);
     }
 
     #[test]
@@ -375,6 +392,25 @@ mod tests {
             score.add_lines(1);
         }
         assert_eq!(score.level, 1);
+    }
+
+    #[test]
+    fn test_combo_bonus_applied() {
+        let mut score = Score::default();
+        score.add_lines(1);
+        score.add_lines(1);
+        assert_eq!(score.value, SCORE_SINGLE + SCORE_SINGLE + SCORE_COMBO);
+        assert_eq!(score.combo, 2);
+    }
+
+    #[test]
+    fn test_combo_break_resets_streak() {
+        let mut score = Score::default();
+        score.add_lines(1);
+        score.break_combo();
+        score.add_lines(1);
+        assert_eq!(score.value, SCORE_SINGLE + SCORE_SINGLE);
+        assert_eq!(score.combo, 1);
     }
 
     #[test]
